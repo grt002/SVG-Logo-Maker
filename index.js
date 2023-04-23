@@ -104,18 +104,27 @@ async function createShape(shapeType, shapeColor) {
   return shape;
 }
 
-
 async function main() {
-  const userInput = await promptUser();
-  const shape = await createShape(userInput.shapeType, userInput.shapeColor);
-  const logo = generateLogo(userInput, shape);
-
-  fs.writeFile('./examples/logo.svg', logo, (err) => {
-    if (err) throw err;
-    console.log('Logo created!');
-  });
-}
-
+    const userInput = await promptUser();
+    let shape;
+    if (userInput.shapeType === 'Triangle') {
+      shape = new Triangle();
+    } else if (userInput.shapeType === 'Circle') {
+      shape = new Circle();
+    } else if (userInput.shapeType === 'Square') {
+      shape = new Square();
+    }
+  
+    shape.setColor(userInput.shapeColor);
+    shape.setShape();
+  
+    const logo = generateLogo(userInput, shape);
+    fs.writeFile('./examples/logo.svg', logo, (err) => {
+      if (err) throw err;
+      console.log('Generated logo.svg');
+    });
+  }
+  
 main();
-
+    
 module.exports = promptUser;

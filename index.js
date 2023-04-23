@@ -1,6 +1,52 @@
 const inquirer = require('inquirer');
-const { Circle, Square, Triangle } = require('./lib/shapes');
 const fs = require('fs');
+
+class Shape {
+  constructor(size, color) {
+    this.size = size;
+    this.color = color;
+  }
+
+  setColor(color) {
+    this.color = color;
+  }
+
+  render() {
+    return '';
+  }
+}
+
+class Circle extends Shape {
+  constructor(size, color) {
+    super(size, color);
+  }
+
+  render() {
+    return `<circle cx="${this.size/2}" cy="${this.size/2}" r="${this.size/2}" fill="${this.color}" />`;
+  }
+}
+
+class Square extends Shape {
+  constructor(size, color) {
+    super(size, color);
+  }
+
+  render() {
+    return `<rect x="0" y="0" width="${this.size}" height="${this.size}" fill="${this.color}" />`;
+  }
+}
+
+class Triangle extends Shape {
+  constructor(size, color) {
+    super(size, color);
+  }
+
+  render() {
+    const halfSize = this.size / 2;
+    const points = `0,${this.size} ${this.size},${this.size} ${halfSize},0`;
+    return `<polygon points="${points}" fill="${this.color}" />`;
+  }
+}
 
 function promptUser() {
   return inquirer.prompt([
@@ -29,43 +75,41 @@ function promptUser() {
 }
 
 function generateLogo(userInput, shape) {
-  let svgShape;
-  switch (userInput.shapeType) {
-    case 'Triangle':
-      svgShape = shape.drawTriangle();
-      break;
-    case 'Circle':
-      svgShape = shape.drawCircle();
-      break;
-    case 'Square':
-      svgShape = shape.drawSquare();
-      break;
-    default:
-      console.log('Invalid shape type selected');
-      return;
-  }
-
   const logo = `<svg width="${shape.size}" height="${shape.size}">
-    ${svgShape}
-    <text x="5" y="75" font-size="60" fill="${userInput.textColor}">${userInput.text}</text>
+      ${shape.render()}
+      <text x="5" y="75" font-size="60" fill="${userInput.textColor}">${userInput.text}</text>
   </svg>`;
 
   return logo;
 }
 
-async function main() {
-  const userInput = await promptUser();
+async function createShape(shapeType, shapeColor) {
   let shape;
-  if (userInput.shapeType === 'Triangle') {
-    shape = new Triangle(50);
-  } else if (userInput.shapeType === 'Circle') {
-    shape = new Circle(50);
-  } else if (userInput.shapeType === 'Square') {
-    shape = new Square(50);
+  switch(shapeType) {
+    case 'Triangle':
+      shape = new Triangle();
+      break;
+    case 'Circle':
+      shape = new Circle();
+      break;
+    case 'Square':
+      shape = new Square();
+      break;
+    default:
+      throw new Error(`Invalid shape type: ${shapeType}`);
   }
 
-  shape.setColor(userInput.shapeColor);
+  shape.setColor(shapeColor);
+
+  return shape;
+}
+
+
+async function main() {
+  const userInput = await promptUser();
+  const shape = await createShape(userInput.shapeType, userInput.shapeColor);
   const logo = generateLogo(userInput, shape);
+
   fs.writeFile('./examples/logo.svg', logo, (err) => {
     if (err) throw err;
     console.log('Logo created!');

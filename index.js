@@ -1,5 +1,5 @@
-const inquirer = require('inquirer');
-const fs = require('fs');
+import inquirer from 'inquirer';
+import fs from 'fs';
 
 class Shape {
   constructor(size, color) {
@@ -83,23 +83,21 @@ function generateLogo(userInput, shape) {
   return logo;
 }
 
-async function createShape(shapeType, shapeColor) {
+async function createShape(shapeType, shapeColor, shapeSize) {
   let shape;
   switch(shapeType) {
     case 'Triangle':
-      shape = new Triangle();
+      shape = new Triangle(shapeSize, shapeColor);
       break;
     case 'Circle':
-      shape = new Circle();
+      shape = new Circle(shapeSize, shapeColor);
       break;
     case 'Square':
-      shape = new Square();
+      shape = new Square(shapeSize, shapeColor);
       break;
     default:
       throw new Error(`Invalid shape type: ${shapeType}`);
   }
-
-  shape.setColor(shapeColor);
 
   return shape;
 }
@@ -116,7 +114,6 @@ async function main() {
     }
   
     shape.setColor(userInput.shapeColor);
-    shape.setShape();
   
     const logo = generateLogo(userInput, shape);
     fs.writeFile('./examples/logo.svg', logo, (err) => {
@@ -126,5 +123,3 @@ async function main() {
   }
   
 main();
-    
-module.exports = promptUser;
